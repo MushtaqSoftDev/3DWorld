@@ -1,14 +1,60 @@
-import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { useEffect, useState } from "react";
+import { Cube } from "./models/Cube";
+import { Torus } from "./models/Torus";
+import { ProjectComputer } from "./models/ProjectComputer";
+
+export default function Scene() {
+  const [currentModel, setCurrentModel] = useState("torus");
+
+  useEffect(() => {
+    function handleScroll() {
+      const scrollY = window.scrollY;
+      const aboutTop = document.querySelector("#about")?.offsetTop || 0;
+      const projectTop = document.querySelector("#project")?.offsetTop || 0;
+
+      if (scrollY + window.innerHeight / 2 >= projectTop) {
+        setCurrentModel("projectcomputer");
+      } else if (scrollY + window.innerHeight / 2 >= aboutTop) {
+        setCurrentModel("cube");
+      } else {
+        setCurrentModel("torus");
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <Canvas camera={{ position: [0, 0, 30], fov: 75 }}>
+      {/** Lights */}
+      <ambientLight intensity={0.6} />
+      <pointLight position={[5, 5, 5]} />
+
+      {/** Show model depending on scroll */}
+      {currentModel === "torus" && <Torus />}
+      {currentModel === "cube" && <Cube />}
+      {currentModel === "projectcomputer" && <ProjectComputer />}
+
+      <OrbitControls />
+    </Canvas>
+  );
+}
+
+/*import * as THREE from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import { createTorus } from "./models/torus";
 import { createProfileCube } from "./models/cube";
+import { useTexture } from "@react-three/drei";
 
-//import { ProjectComputer } from "./components/ProjectComputer";
+const texture = useTexture("/humanTexture.jpeg");*/
 
-export default function initThreeScene() {
+/*export default function initThreeScene() {
   const scene = new THREE.Scene();
 
   const camera = new THREE.PerspectiveCamera(
@@ -35,15 +81,15 @@ export default function initThreeScene() {
   scene.add(pointLight, new THREE.AmbientLight(0xffffff));
 
   /* Helper method */
-  // for rectangle's boxes
-  /*const lightHelper = new THREE.PointLightHelper(pointLight);
+// for rectangle's boxes
+/*const lightHelper = new THREE.PointLightHelper(pointLight);
   const gridHelper = new THREE.GridHelper(200, 50);
   scene.add(lightHelper, gridHelper);*/
 
-  const controls = new OrbitControls(camera, renderer.domElement);
+//const controls = new OrbitControls(camera, renderer.domElement);
 
-  // 3D-Models
-  const torus = createTorus();
+// 3D-Models
+/*const torus = createTorus();
   const cube = createProfileCube();
   scene.add(torus); // start with torus
 
@@ -58,22 +104,16 @@ export default function initThreeScene() {
       projectComputer.scale.set(4, 4, 4); // adjust size
       projectComputer.position.set(0, -2, 5); // position it in view
       projectComputer.rotation.y = Math.PI / 6;
-
-      // Change all materials to a new color
-      /*projectComputer.traverse((child) => {
-        if (child.isMesh) {
-          child.material = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); // green
-        }
-      });*/
+      <meshStandardMaterial map={texture} />;
     },
     undefined,
     (error) => {
       console.error("Error loading GLTF:", error);
     }
-  );
+  );*/
 
-  // Scroll intersection, track which section we are in
-  function moveCamera() {
+// Scroll intersection, track which section we are in
+/*function moveCamera() {
     const scrollY = window.scrollY; //gives vertical scroll pos in pixels/ how much user has scrolled vertically
     const aboutSection = document.querySelector("#about");
     const projectSection = document.querySelector("#project");
@@ -132,7 +172,7 @@ export default function initThreeScene() {
   // now call function to add star in the scene
   Array(200).fill().forEach(addStar);*/
 
-  function animate() {
+/*function animate() {
     requestAnimationFrame(animate);
 
     if (scene.children.includes(torus)) {
@@ -153,4 +193,4 @@ export default function initThreeScene() {
     renderer.render(scene, camera);
   }
   animate();
-}
+}*/

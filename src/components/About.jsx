@@ -1,12 +1,15 @@
 import React from "react";
 import { skills } from "../constant/index.js";
 
-const About = () => {
+export function About() {
   return (
     <section className="max-container">
       <h1 className=" text-blue-950 dark:text-sky-500 text-5xl">
         Hello, I'm{" "}
-        <span className="text-blue-gradien font-semibold drop-shadow">Doe</span>
+        <span className="text-blue-gradien font-semibold drop-shadow">
+          Mushtaq
+        </span>
+        <span className="waving-hand">✋</span>
       </h1>
       <div className="mt-5 flex flex-col gap-3 text-slate-1000">
         <p className="text-blue-600 dark:text-sky-400 text-4xl">
@@ -31,6 +34,4 @@ const About = () => {
       </div>
     </section>
   );
-};
-
-export default About;
+}

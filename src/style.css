@@ -4,3 +4,11 @@ canvas {
   top: 0;
   left: 0;
 }
+
+.waving-hand {
+  animation-name: wave-animation;
+  animation-duration: 2.5s;
+  animation-iteration-count: infinite;
+  transform-origin: 70% 70%;
+  display: inline-block;
+}
