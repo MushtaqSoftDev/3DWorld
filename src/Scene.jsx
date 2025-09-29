@@ -1,31 +1,62 @@
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import { useEffect, useState } from "react";
+// src/Scene.jsx
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Sky, Cloud } from "@react-three/drei";
+import { useRef } from "react";
 import { Cube } from "./models/Cube";
 import { Torus } from "./models/Torus";
 import { ProjectComputer } from "./models/ProjectComputer";
+import { FooterGlobe } from "./components/FooterGlobe";
+import { useTransform, useMotionValueEvent } from "framer-motion";
 
-export default function Scene() {
-  const [currentModel, setCurrentModel] = useState("torus");
+export default function Scene({ currentSection, scrollYProgress }) {
+  /**
+   * IMPORTANT:
+   * - We create motion transforms (framer) that map scroll progress to Z positions.
+   * - Then we subscribe to those transforms and push the changing numeric value into refs
+   *   that Three.js objects can read inside useFrame.
+   *
+   * The 3-stop mapping (array domain with 3 outputs) makes the object:
+   *  - start far away at load,
+   *  - come close during the first small scroll (gives "appearing" effect),
+   *  - then retreat as the user scrolls further.
+   */
 
-  useEffect(() => {
-    function handleScroll() {
-      const scrollY = window.scrollY;
-      const aboutTop = document.querySelector("#about")?.offsetTop || 0;
-      const projectTop = document.querySelector("#project")?.offsetTop || 0;
+  // torus: far -> close -> back
+  const torusZ = useTransform(scrollYProgress, [0, 0.12, 0.4], [-150, 0, -120]);
+  // clouds: slightly different depths so clouds feel layered
+  const cloudZ = useTransform(
+    scrollYProgress,
+    [0, 0.12, 0.4],
+    [-200, -40, -250]
+  );
 
-      if (scrollY + window.innerHeight / 2 >= projectTop) {
-        setCurrentModel("projectcomputer");
-      } else if (scrollY + window.innerHeight / 2 >= aboutTop) {
-        setCurrentModel("cube");
-      } else {
-        setCurrentModel("torus");
+  // Refs that R3F components will read in useFrame
+  const torusZRef = useRef(torusZ.get());
+  const cloudZRef = useRef(cloudZ.get());
+
+  // Subscribe to changes so refs are kept up-to-date
+  // (useMotionValueEvent is preferred API in Framer Motion v6+)
+  useMotionValueEvent(torusZ, "change", (v) => {
+    torusZRef.current = v;
+  });
+  useMotionValueEvent(cloudZ, "change", (v) => {
+    cloudZRef.current = v;
+  });
+
+  // Lightweight wrapper that positions the Cloud object each frame from the ref
+  function CloudWrapper({ position: [x, y], cloudRef, ...props }) {
+    const meshRef = useRef();
+    useFrame(() => {
+      if (meshRef.current) {
+        // update Z from the shared ref each frame
+        meshRef.current.position.set(x, y, cloudRef.current);
       }
-    }
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    });
+    // pass other props through; position.z will be controlled by useFrame
+    return (
+      <Cloud ref={meshRef} position={[x, y, cloudRef.current]} {...props} />
+    );
+  }
 
   return (
     <Canvas camera={{ position: [0, 0, 30], fov: 75 }}>
@@ -33,10 +64,52 @@ export default function Scene() {
       <ambientLight intensity={0.6} />
       <pointLight position={[5, 5, 5]} />
 
-      {/** Show model depending on scroll */}
-      {currentModel === "torus" && <Torus />}
-      {currentModel === "cube" && <Cube />}
-      {currentModel === "projectcomputer" && <ProjectComputer />}
+      {/** Home: show sky + multiple cloud wrappers and the torus */}
+      {currentSection === "home" && (
+        <>
+          <Sky sunPosition={[100, 20, 100]} />
+          <CloudWrapper
+            position={[-25, 10]}
+            cloudRef={cloudZRef}
+            opacity={0.45}
+            speed={0.12}
+            width={40}
+            depth={20}
+            segments={50}
+          />
+          <CloudWrapper
+            position={[12, 16]}
+            cloudRef={cloudZRef}
+            opacity={0.5}
+            speed={0.18}
+            width={35}
+            depth={18}
+            segments={45}
+          />
+          <CloudWrapper
+            position={[0, 22]}
+            cloudRef={cloudZRef}
+            opacity={0.35}
+            speed={0.08}
+            width={45}
+            depth={22}
+            segments={60}
+          />
+        </>
+      )}
+
+      {/** About/Project may show different skydome if needed */}
+      {currentSection === "about" && <Sky sunPosition={[100, 20, 100]} />}
+
+      {/** Show the right model per currentSection.
+       *  Pass torusZRef to Torus so it can read the Z value inside useFrame.
+       */}
+      {currentSection === "home" && <Torus torusZRef={torusZRef} />}
+      {currentSection === "about" && <Cube />}
+      <ProjectComputer isActive={currentSection === "project"} />
+      {currentSection === "footer" && (
+        <FooterGlobe scrollYProgress={scrollYProgress} />
+      )}
 
       <OrbitControls />
     </Canvas>

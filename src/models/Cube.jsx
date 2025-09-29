@@ -1,11 +1,23 @@
 import * as THREE from "three";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 
 export function Cube() {
   const cubeRef = useRef();
+  const [xPos, setXPos] = useState(-100); // start far away
   const profile = useTexture("Mushtaqprofile.png");
+
+  // Animate cube coming from right side
+  useEffect(() => {
+    let frame = 0;
+    function animate() {
+      frame++;
+      setXPos((prev) => Math.min(prev + 2, 0));
+      if (frame < 60) requestAnimationFrame(animate);
+    }
+    animate();
+  }, []);
 
   // Rotate on each frame
   useFrame(() => {
@@ -15,7 +27,7 @@ export function Cube() {
   });
 
   return (
-    <mesh ref={cubeRef}>
+    <mesh ref={cubeRef} position={[xPos, 0, 0]}>
       <boxGeometry args={[5, 5, 5]} />
       <meshStandardMaterial map={profile} color="white" />
     </mesh>

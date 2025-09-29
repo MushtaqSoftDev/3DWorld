@@ -1,20 +1,26 @@
 import * as THREE from "three";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 
-export function Torus() {
+export function Torus({ torusZRef }) {
   const torusRef = useRef();
 
+  // Add rotating loop
   useFrame(() => {
     if (torusRef.current) {
       torusRef.current.rotation.x += 0.01;
       torusRef.current.rotation.y += 0.005;
       torusRef.current.rotation.z += 0.01;
+
+      // update z from the ref (if provided)
+      if (torusZRef && typeof torusZRef.current === "number") {
+        torusRef.current.position.z = torusZRef.current;
+      }
     }
   });
 
   return (
-    <mesh ref={torusRef}>
+    <mesh ref={torusRef} position={[0, 0, 0]}>
       <torusGeometry args={[10, 3, 16, 100]} />
       <meshStandardMaterial wireframe={true} />
     </mesh>

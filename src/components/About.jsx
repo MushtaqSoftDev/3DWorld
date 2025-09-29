@@ -3,7 +3,7 @@ import { skills } from "../constant/index.js";
 
 export function About() {
   return (
-    <section className="max-container">
+    <div className="max-container">
       <h1 className=" text-blue-950 dark:text-sky-500 text-5xl">
         Hello, I'm{" "}
         <span className="text-blue-gradien font-semibold drop-shadow">
@@ -32,6 +32,6 @@ export function About() {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }
