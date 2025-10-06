@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Cube } from "./models/Cube";
 import { Torus } from "./models/Torus";
 import { ProjectComputer } from "./models/ProjectComputer";
+import { Shirt } from "./models/Shirt";
 import { FooterGlobe } from "./components/FooterGlobe";
 import { useTransform, useMotionValueEvent } from "framer-motion";
 
@@ -65,7 +66,7 @@ export default function Scene({ currentSection, scrollYProgress }) {
       <pointLight position={[5, 5, 5]} />
 
       {/** Home: show sky + multiple cloud wrappers and the torus */}
-      {currentSection === "home" && (
+      {currentSection === "header" && (
         <>
           <Sky sunPosition={[100, 20, 100]} />
           <CloudWrapper
@@ -104,9 +105,10 @@ export default function Scene({ currentSection, scrollYProgress }) {
       {/** Show the right model per currentSection.
        *  Pass torusZRef to Torus so it can read the Z value inside useFrame.
        */}
-      {currentSection === "home" && <Torus torusZRef={torusZRef} />}
+      {currentSection === "header" && <Torus torusZRef={torusZRef} />}
       {currentSection === "about" && <Cube />}
-      <ProjectComputer isActive={currentSection === "project"} />
+      {currentSection === "design" && <Shirt />}
+      {currentSection === "project" && <ProjectComputer isActive />}
       {currentSection === "footer" && (
         <FooterGlobe scrollYProgress={scrollYProgress} />
       )}

@@ -1,13 +1,13 @@
 import { motion, useTransform } from "framer-motion";
 
-export function Home({ scrollYProgress }) {
+export function Header({ scrollYProgress }) {
   // Animate heading with scroll
   const y = useTransform(scrollYProgress, [0, 0.3], [0, -200]);
   const opacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
   return (
     <section
-      id="home"
+      id="header"
       className="h-screen flex flex-col items-center justify-center relative"
       style={{ height: "100vh" }}
     >
